@@ -6,20 +6,21 @@ import android.os.Bundle
 import android.provider.Settings
 import android.view.accessibility.AccessibilityManager
 import android.widget.Button
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 
 class MainActivity : AppCompatActivity() {
 
-    private val PERMISSION_REQUEST_ACCESSIBILITY = 1001
+    private val REQUEST_ACCESSIBILITY = 1
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val accessibilityButton: Button = findViewById(R.id.accessibilityButton)
-        accessibilityButton.setOnClickListener {
+        val requestPermissionButton = findViewById<Button>(R.id.accessibilityButton)
+        requestPermissionButton.setOnClickListener {
             val intent = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
-            startActivityForResult(intent, PERMISSION_REQUEST_ACCESSIBILITY)
+            startActivityForResult(intent, REQUEST_ACCESSIBILITY)
         }
 
         if (savedInstanceState == null) {
@@ -45,18 +46,21 @@ class MainActivity : AppCompatActivity() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == PERMISSION_REQUEST_ACCESSIBILITY) {
-            // Check if the accessibility service permission was granted
+        if (requestCode == REQUEST_ACCESSIBILITY) {
+            // Check if the user granted the accessibility permission
             val accessibilityEnabled = isAccessibilityServiceEnabled()
             if (accessibilityEnabled) {
-                // Permission granted, handle accordingly
+                Toast.makeText(this, "Accessibility permission granted", Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(this, "Accessibility permission not granted", Toast.LENGTH_SHORT).show()
             }
         }
     }
 
     private fun isAccessibilityServiceEnabled(): Boolean {
-        val accessibilityManager = getSystemService(ACCESSIBILITY_SERVICE) as AccessibilityManager
-        val accessibilityServices = Settings.Secure.getString(contentResolver, Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES)
-        return accessibilityServices?.contains(packageName) == true && accessibilityManager.isEnabled
+        val packageName = packageName
+        val accessibilityServices =
+            Settings.Secure.getString(contentResolver, Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES)
+        return accessibilityServices?.contains(packageName) == true
     }
 }

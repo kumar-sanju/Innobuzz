@@ -7,12 +7,16 @@ import android.widget.Toast
 class MyAccessibilityService : AccessibilityService() {
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
-        if (event?.packageName == "com.whatsapp") {
-            Toast.makeText(this, "WhatsApp Launched.", Toast.LENGTH_SHORT).show()
+        if (event?.packageName == "com.whatsapp" && event.eventType == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) {
+            showToast("WhatsApp Launched.")
         }
     }
 
     override fun onInterrupt() {
-        // Do nothing
+        // Not used
+    }
+
+    private fun showToast(message: String) {
+        Toast.makeText(applicationContext, message, Toast.LENGTH_SHORT).show()
     }
 }
